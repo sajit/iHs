@@ -32,7 +32,8 @@ GM1: 'The Resurrection',
 GM2: 'The Ascension', 
 GM3: 'The Coming of the Holy Spirit', 
 GM4: 'The Assumption of Mary',
-GM5: 'The Coronation of Mary'
+GM5: 'The Coronation of Mary',
+FHC: 'Faith Hope & Charity'
 };
 
 var rosary = function(ln){
