@@ -90,6 +90,9 @@ app.controller('AppCtrl',function($scope,mysteryData, speechService, stateMachin
   var goNext = function(){
      var prevTitle = $scope.sm.current.title;
      $scope.sm.current = $scope.sm.next();
+      if(angular.equals({},$scope.sm.current)){
+                $scope.rosaryInProgress = false;
+              }
      if($scope.sm.current.title === prevTitle &&  !$scope.sm.current.switch){
         $scope.hmCount  +=1;
      }
@@ -98,9 +101,7 @@ app.controller('AppCtrl',function($scope,mysteryData, speechService, stateMachin
      }
      $scope.error = '';
               
-              if($scope.sm.current == {}){
-                $scope.rosaryInProgress = false;
-              }
+             
   };
   $scope.record = function() {
       $scope.speechApi.onresult = function(event) {
