@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title></title>
+
+    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
+    <link href="css/ionic.app.css" rel="stylesheet">
+    -->
+
+    <!-- ionic/angularjs js -->
+    <script src="lib/ionic/js/ionic.bundle.js"></script>
+
+    <!-- cordova script (this will be a 404 during development) -->
+    <script src="cordova.js"></script>
+
+   <!--helper -->
+   <script src="js/string_score.min.js"></script>
+   <script type="text/javascript" src="js/prayers.js"></script>
+   <script type="text/javascript" src="js/state.js"></script>
+   
+    <!-- your app's js -->
+    <script src="js/app.js"></script>
+    <script type="text/javascript">
+      var enRosary = rosary('en');
+      
+//console.log('start',state1.current);
+
+      window.rosary = enRosary;
+    </script>
+  </head>
+
+  <body ng-app="starter">
+
+    <ion-pane>
+      <ion-header-bar class="bar-stable">
+        <h1 class="title">Prayer</h1>
+      </ion-header-bar>
+      <ion-content>
+      <div ng-controller="AppCtrl">
+        <div ng-if="!rosaryInProgress">
+          <div>Select Mystery</div>
+         <div ng-repeat="mystery in allMysteries">
+            {{mystery}}: <input type="radio" ng-model="selectedMystery" ng-value="mystery"/>
+         </div>
+         <button class="button" ng-click="start()">Start</button>
+        </div>
+         
+         <div ng-if="rosaryInProgress">
+           
+             <h4><b>{{sm.current.title}}</b>  <sub ng-if="intention"><i>Intention:</i>{{intention}}</sub></h4> 
+                    <span ng-if="hmCount > 0">{{hmCount}}</span>
+             <br/>
+
+           <div class="prayer">
+             " {{sm.current.text}} "
+              <br/>
+              <button style="margin-left : 30px;" class="button" ng-click="record()">Pray</button>  
+              <button style="height: 30px;" ng-click="next()">Next</button>
+           </div>
+            {{error}}
+           
+         </div>
+      </div> 
+      </ion-content>
+    </ion-pane>
+  </body>
+</html>
