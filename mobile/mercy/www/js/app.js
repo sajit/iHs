@@ -94,6 +94,14 @@ app.controller('AppCtrl',function($scope,mysteryData, speechService, stateMachin
        console.log('Init State',$scope.currentState);
        
   };
+  var goNext = function(){
+     $scope.currentState = $scope.sm.next();
+       $scope.error = '';
+              //$scope.$apply();
+              if($scope.currentState== {}){
+                $scope.rosaryInProgress = false;
+              }
+  };
   $scope.record = function() {
       $scope.speechApi.onresult = function(event) {
         if (event.results.length > 0) {
@@ -101,12 +109,10 @@ app.controller('AppCtrl',function($scope,mysteryData, speechService, stateMachin
             console.log('Recognized text',$scope.recognizedText);
             var score = $scope.currentState.text.score($scope.recognizedText,0.5);
             
-            $scope.$apply();
+            
             console.log('Match score',score);
             if(true){
-              $scope.currentState = $scope.sm.next();
-              $scope.error = '';
-              $scope.$apply();
+               goNext();
             }
             else {
               console.error('Print error message');
@@ -115,5 +121,9 @@ app.controller('AppCtrl',function($scope,mysteryData, speechService, stateMachin
         }
     };
     $scope.speechApi.start();
+  };
+
+  $scope.next = function(){
+    goNext();
   };
 });
