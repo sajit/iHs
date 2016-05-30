@@ -42,6 +42,7 @@ app.factory('speechService',function(){
       else
         recognition = new webkitSpeechRecognition();
     recognition.lang = 'en-US';
+    recognition.continuous = true;
     
     
   return {
@@ -70,7 +71,20 @@ app.factory('stateMachineService',['$window',function($window){
          
        };
 }]);
-app.controller('AppCtrl',function($scope,mysteryData, speechService, stateMachineService){
+app.factory('intentionData',function(){
+  var _intentions = {
+    1 : "We pray for the conversion of this unrepentant world which has continuously rejected God's love.",
+    2: "We pray for the persecuted Christians throughout the world. We pray that God gives them the courage to be faithful witnesses to Christ. We especially pray for the conversion of their persecutors",
+    3: "We pray for Church - everyone from the Pope to the deacons. We pray that they be filled with the Holy Spirit and be zealous shepherds of God's flock",
+    4: "We pray for the poor souls in purgatory and especially those souls who have no one to pray for them. May they be welcomed into God's presence",
+    5: "We pray for our holy and private intentions"
+  };
+  return {
+    intentions : _intentions
+  };
+
+});
+app.controller('AppCtrl',function($scope,mysteryData, speechService, stateMachineService, intentionData){
 
  var day = new Date();
   $scope.selectedMystery  = mysteryData.getMysteryByDay(day.getDay());
@@ -100,7 +114,9 @@ app.controller('AppCtrl',function($scope,mysteryData, speechService, stateMachin
        $scope.hmCount = 0;
      }
      $scope.error = '';
-              
+     if($scope.sm.current.mysterCount){
+      $scope.intention = intentionData.intentions[$scope.sm.current.mysterCount];
+     }
              
   };
   $scope.record = function() {

@@ -38,7 +38,7 @@
 
     <ion-pane>
       <ion-header-bar class="bar-stable">
-        <h1 class="title">Ionic Blank Starter</h1>
+        <h1 class="title">Prayer</h1>
       </ion-header-bar>
       <ion-content>
       <div ng-controller="AppCtrl">
@@ -47,20 +47,20 @@
          <div ng-repeat="mystery in allMysteries">
             {{mystery}}: <input type="radio" ng-model="selectedMystery" ng-value="mystery"/>
          </div>
-         <button class="btn btn-default" ng-click="start()">Start</button>
+         <button class="button" ng-click="start()">Start</button>
         </div>
          
          <div ng-if="rosaryInProgress">
            
-             <h4>{{sm.current.title}}</h4> 
+             <h4><b>{{sm.current.title}}</b>  <sub ng-if="intention"><i>Intention:</i>{{intention}}</sub></h4> 
                     <span ng-if="hmCount > 0">{{hmCount}}</span>
              <br/>
 
            <div class="prayer">
              " {{sm.current.text}} "
               <br/>
-              <button style="margin: auto;" ng-click="record()">Pray</button>  
-              <button ng-click="next()">Next</button>
+              <button style="margin-left : 30px;" class="button" ng-click="record()">Pray</button>  
+              <button style="height: 30px;" ng-click="next()">Next</button>
            </div>
             {{error}}
            

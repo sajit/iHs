@@ -24,6 +24,7 @@ var state = function(mystery,rosaryPrayer){
               _current.title = rosaryPrayer[mystery+_mysterCount];
                
              }
+             _current.mysterCount = _mysterCount;
              return _current;
           }
 
@@ -56,6 +57,7 @@ var state = function(mystery,rosaryPrayer){
                 _current = rosaryPrayer.GB;
                  _current.switch = true;
               }
+              _current.mysterCount = _mysterCount;
               _current.title = rosaryPrayer[mystery+_mysterCount];
               return  _current;
             }
@@ -67,6 +69,7 @@ var state = function(mystery,rosaryPrayer){
             if(_mysterCount == 0 ){
               _mysterCount = 1;
               _current = rosaryPrayer.OF;
+              _current.mysterCount = _mysterCount;
               _current.title = rosaryPrayer[mystery+_mysterCount];
             }
             else{
