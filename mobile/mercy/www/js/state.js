@@ -38,6 +38,7 @@ var state = function(mystery,rosaryPrayer){
               else {
                 _hmCount = 0;
                 _current = rosaryPrayer.GB;
+                _current.switch = true;
                 _mysterCount = _mysterCount + 1;
               }
                _current.title = rosaryPrayer.FHC;
@@ -53,7 +54,7 @@ var state = function(mystery,rosaryPrayer){
               else {
                 _hmCount = 0;
                 _current = rosaryPrayer.GB;
-                
+                 _current.switch = true;
               }
               _current.title = rosaryPrayer[mystery+_mysterCount];
               return  _current;
@@ -63,22 +64,24 @@ var state = function(mystery,rosaryPrayer){
 
            if(_current == rosaryPrayer.GB){
            
+            
+             _current = rosaryPrayer.OF;
+             _current.title = rosaryPrayer[mystery+_mysterCount];
+            return _current;
+           }
+           if(_current == rosaryPrayer.FP){
+
             if(_mysterCount==5){
               return {};
             }
             _mysterCount = _mysterCount + 1;
-             _current = rosaryPrayer.OF;
-             _current.title = rosaryPrayer[mystery+_mysterCount];
-            return _current;
            }
           
 
      };
      return {
         next : _next,
-        current: _current,
-        mysterCount: _mysterCount,
-        hmCount : _hmCount
+        current: _current
      };
 };
 //state1 = state('JM',enRosary);

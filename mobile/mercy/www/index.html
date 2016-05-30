@@ -52,10 +52,12 @@
          
          <div ng-if="rosaryInProgress">
            
-             <h4>{{currentState.title}}</h4> <br/>
+             <h4>{{sm.current.title}}</h4> 
+                    <span ng-if="hmCount > 0">{{hmCount}}</span>
+             <br/>
 
            <div class="prayer">
-             " {{currentState.text}} "
+             " {{sm.current.text}} "
               <br/>
               <button style="margin: auto;" ng-click="record()">Pray</button>  
               <button ng-click="next()">Next</button>

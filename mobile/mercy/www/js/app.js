@@ -64,41 +64,41 @@ app.factory('stateMachineService',['$window',function($window){
             else {
               code = 'LM';
             }
-            stateMachine = state(code,rosaryPrayers);
-         },
-         getState: function(){
-          if(!stateMachine){
-            return false;
-          }
-          return stateMachine;
+            stateMachine = new state(code,rosaryPrayers);
+            return stateMachine;
          }
+         
        };
 }]);
 app.controller('AppCtrl',function($scope,mysteryData, speechService, stateMachineService){
 
  var day = new Date();
-  console.log('Init',day.getDay());
   $scope.selectedMystery  = mysteryData.getMysteryByDay(day.getDay());
   $scope.allMysteries = mysteryData.mysteries;
   $scope.speechApi = speechService.speechApi;
   $scope.stateMachineService = stateMachineService;
 
   //console.log('All',$scope.allMysteries,$scope.defaultMystery);
-  $scope.currentState =  {};
   $scope.rosaryInProgress = false;
   $scope.start = function(){
        $scope.rosaryInProgress = true;
-        $scope.stateMachineService.init($scope.selectedMystery);
-       $scope.sm = $scope.stateMachineService.getState();
-       $scope.currentState = $scope.sm.current;
-       console.log('Init State',$scope.currentState);
+        $scope.sm = stateMachineService.init($scope.selectedMystery);
+       console.log('State M',$scope.sm);
+       console.log('Init State',$scope.sm.current);
        
   };
   var goNext = function(){
-     $scope.currentState = $scope.sm.next();
-       $scope.error = '';
-              //$scope.$apply();
-              if($scope.currentState== {}){
+     var prevTitle = $scope.sm.current.title;
+     $scope.sm.current = $scope.sm.next();
+     if($scope.sm.current.title === prevTitle &&  !$scope.sm.current.switch){
+        $scope.hmCount  +=1;
+     }
+     else{
+       $scope.hmCount = 0;
+     }
+     $scope.error = '';
+              
+              if($scope.sm.current == {}){
                 $scope.rosaryInProgress = false;
               }
   };
@@ -107,7 +107,7 @@ app.controller('AppCtrl',function($scope,mysteryData, speechService, stateMachin
         if (event.results.length > 0) {
             $scope.recognizedText = event.results[0][0].transcript;
             console.log('Recognized text',$scope.recognizedText);
-            var score = $scope.currentState.text.score($scope.recognizedText,0.5);
+            var score = $scope.sm.current.text.score($scope.recognizedText,0.5);
             
             
             console.log('Match score',score);
