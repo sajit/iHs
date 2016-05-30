@@ -8,21 +8,23 @@ var state = function(mystery,rosaryPrayer){
      var _next = function(){
           if(_current == rosaryPrayer.SOTC){
              _current = rosaryPrayer.CREED;
-          	 return {prayer : _current};
+          	 return _current;
           }
           if(_current == rosaryPrayer.CREED){
              _current = rosaryPrayer.OF;
-             return {prayer: _current} ;
+             _current.title =  rosaryPrayer.FHC
+             return _current ;
           }
           if(_current == rosaryPrayer.OF){
              _current = rosaryPrayer.HM;
              if(_mysterCount == 0) {
-              return {prayer : _current, prefix : rosaryPrayer.FHC};
+              _current.title = rosaryPrayer.FHC;
              }
              else {
-               return {prayer : _current, prefix : rosaryPrayer[mystery+_mysterCount]};
+              _current.title = rosaryPrayer[mystery+_mysterCount];
+               
              }
-             
+             return _current;
           }
 
           //if current is HM
@@ -31,29 +33,30 @@ var state = function(mystery,rosaryPrayer){
               if(_hmCount<2){
                 _hmCount= _hmCount + 1;
                 _current = rosaryPrayer.HM;
-                return {prayer : _current, prefix : rosaryPrayer.FHC};
 
               }
               else {
                 _hmCount = 0;
                 _current = rosaryPrayer.GB;
                 _mysterCount = _mysterCount + 1;
-                return {prayer : _current};
               }
+               _current.title = rosaryPrayer.FHC;
+               return _current;
             }
             else{
                 if(_hmCount<9){
                 _hmCount= _hmCount + 1;
                 _current = rosaryPrayer.HM;
-                return {prayer : _current, prefix : rosaryPrayer[mystery+_mysterCount]};
+                
 
               }
               else {
                 _hmCount = 0;
                 _current = rosaryPrayer.GB;
                 _mysterCount = _mysterCount + 1;
-                return {prayer : _current};
               }
+              _current.title = rosaryPrayer[mystery+_mysterCount];
+              return  _current;
             }
             
            }
@@ -64,14 +67,17 @@ var state = function(mystery,rosaryPrayer){
               return {};
             }
              _current = rosaryPrayer.OF;
-            return {prayer : _current, prefix : rosaryPrayer[mystery+_mysterCount]};
+             _current.title = rosaryPrayer[mystery+_mysterCount];
+            return _current;
            }
           
 
      };
      return {
         next : _next,
-        current: _current
+        current: _current,
+        mysterCount: _mysterCount,
+        hmCount : _hmCount
      };
 };
 //state1 = state('JM',enRosary);

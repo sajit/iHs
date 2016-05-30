@@ -48,25 +48,70 @@ app.factory('speechService',function(){
      speechApi : recognition
   };
 });
-app.controller('AppCtrl',function($scope,mysteryData, speechService, $window){
+app.factory('stateMachineService',['$window',function($window){
+  var rosaryPrayers = $window.rosary;
+   var stateMachine;
+       return {
+         init : function(mystery){
+            var code;
+            if(mystery === 'Glorious'){
+               code = 'GM';
+            } else if(mystery === 'Joyful'){
+              code = 'JM';
+            } else if(mystery === 'Sorrowful'){
+              code = 'SM'
+            }
+            else {
+              code = 'LM';
+            }
+            stateMachine = state(code,rosaryPrayers);
+         },
+         getState: function(){
+          if(!stateMachine){
+            return false;
+          }
+          return stateMachine;
+         }
+       };
+}]);
+app.controller('AppCtrl',function($scope,mysteryData, speechService, stateMachineService){
 
  var day = new Date();
   console.log('Init',day.getDay());
   $scope.selectedMystery  = mysteryData.getMysteryByDay(day.getDay());
   $scope.allMysteries = mysteryData.mysteries;
   $scope.speechApi = speechService.speechApi;
+  $scope.stateMachineService = stateMachineService;
+
   //console.log('All',$scope.allMysteries,$scope.defaultMystery);
+  $scope.currentState =  {};
   $scope.rosaryInProgress = false;
   $scope.start = function(){
        $scope.rosaryInProgress = true;
-       $scope.rosaryPrayers = $window.rosary;
-       console.log('In scope',$scope.rosaryPrayers);
+        $scope.stateMachineService.init($scope.selectedMystery);
+       $scope.sm = $scope.stateMachineService.getState();
+       $scope.currentState = $scope.sm.current;
+       console.log('Init State',$scope.currentState);
+       
   };
   $scope.record = function() {
       $scope.speechApi.onresult = function(event) {
         if (event.results.length > 0) {
             $scope.recognizedText = event.results[0][0].transcript;
-            $scope.$apply()
+            console.log('Recognized text',$scope.recognizedText);
+            var score = $scope.currentState.text.score($scope.recognizedText,0.5);
+            
+            $scope.$apply();
+            console.log('Match score',score);
+            if(true){
+              $scope.currentState = $scope.sm.next();
+              $scope.error = '';
+              $scope.$apply();
+            }
+            else {
+              console.error('Print error message');
+              $scope.error = 'Please try again';
+            }
         }
     };
     $scope.speechApi.start();

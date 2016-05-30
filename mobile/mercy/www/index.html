@@ -19,6 +19,7 @@
     <script src="cordova.js"></script>
 
    <!--helper -->
+   <script src="js/string_score.min.js"></script>
    <script type="text/javascript" src="js/prayers.js"></script>
    <script type="text/javascript" src="js/state.js"></script>
    
@@ -26,6 +27,9 @@
     <script src="js/app.js"></script>
     <script type="text/javascript">
       var enRosary = rosary('en');
+      
+//console.log('start',state1.current);
+
       window.rosary = enRosary;
     </script>
   </head>
@@ -47,10 +51,16 @@
         </div>
          
          <div ng-if="rosaryInProgress">
-           <div>
-             Prayer
+           
+             <h4>{{currentState.title}}</h4> <br/>
+
+           <div class="prayer">
+             " {{currentState.text}} "
+              <br/>
+              <button style="margin: auto;" ng-click="record()">Pray</button>  
            </div>
-           <b></b>
+            {{error}}
+           
          </div>
       </div> 
       </ion-content>
