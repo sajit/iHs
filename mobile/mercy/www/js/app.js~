@@ -135,7 +135,7 @@ app.controller('AppCtrl',function($scope,mysteryData, stateMachineService, inten
         }
     };
     recognition.onstop = function(event){
-          console.log('Onstop',event);
+          console.log('Onstop,event);
   };
    recognition.onend = function(event){
    console.log('OnEnd',event);
