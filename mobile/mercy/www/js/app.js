@@ -1,6 +1,5 @@
 var speechHelper = function(isMobile){
    var recognition;
-   var text = '';
    if(isMobile)
        recognition = new SpeechRecognition(); // For Android /
    else
@@ -97,38 +96,12 @@ app.controller('AppCtrl',function($scope,mysteryData, stateMachineService, inten
         $scope.sm = stateMachineService.init($scope.selectedMystery);
   };
 
-  var matchText = function(reference,spoken){
-    reference = reference.replace(/,|;|'|!|\./g,'').toUpperCase();
-    spoken = spoken.toUpperCase();
-    //console.log('Reference=',reference);
-    //console.log('Spoken=',spoken);
-    var matchScore = spoken.score(reference,0.1);
-    //console.log('Score=',matchScore);
-    return matchScore >=0.15;
-  };
+  var recognition = new speechHelper(isAndroid);
 
-
-  var text,recognition = new speechHelper(isAndroid);
-   recognition.onresult = function(event) {
-
-         for (var i = event.resultIndex; i < event.results.length; ++i) {
-           if (event.results[i].isFinal) {
-             text += event.results[i][0].transcript;
-
-           }
-         }
-
-     };
-     recognition.onend = function(){
-       //console.log('In end',text);
-       var referenceText = $scope.sm.current.text;
-       var isMatch = matchText(referenceText,text);
-        if(isMatch){goNext();
-         } else {
-                  console.error('Too poor match');
-                }
-       $scope.$apply();
-     };
+   recognition.onend = function(){
+     goNext();
+     $scope.$apply();
+   };
 
   $scope.isSpeaking = false;
 
@@ -149,7 +122,7 @@ app.controller('AppCtrl',function($scope,mysteryData, stateMachineService, inten
        if($scope.sm.current.mysterCount){
         $scope.intention = intentionData.intentions[$scope.sm.current.mysterCount];
        }
-       $scope.recognizedText = text;
+
 
     };
   $scope.toggleSpeak = function() {
@@ -158,10 +131,8 @@ app.controller('AppCtrl',function($scope,mysteryData, stateMachineService, inten
         //console.log('Fire end event');
         recognition.stop();
 
-
      }
      else {
-        text = '';
         recognition.start();
      }
      $scope.isSpeaking = !$scope.isSpeaking;

@@ -18,3 +18,10 @@
 .speaking {
    background-color: #C0C0C0;
 }
+.speaking:focus{
+  cursor: wait;
+
+}
+.speaking:hover{
+  cursor: wait;
+}
