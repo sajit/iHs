@@ -7,10 +7,8 @@ var speechHelper = function(isMobile){
        recognition = new webkitSpeechRecognition();
 
    recognition.lang = 'en-US';
-   recognition.continuous = false;
+   recognition.continuous = true;
 
-
-   console.log('Initialized Recognition',recognition);
    return recognition;
 
 };
@@ -83,7 +81,7 @@ app.factory('intentionData',function(){
 
 });
 app.controller('AppCtrl',function($scope,mysteryData, stateMachineService, intentionData){
-  console.log('no hope');
+
   var day = new Date();
   $scope.selectedMystery  = mysteryData.getMysteryByDay(day.getDay());
   $scope.allMysteries = mysteryData.mysteries;
@@ -97,17 +95,16 @@ app.controller('AppCtrl',function($scope,mysteryData, stateMachineService, inten
   $scope.startRosary = function(){
        $scope.rosaryInProgress = true;
         $scope.sm = stateMachineService.init($scope.selectedMystery);
-       //console.log('State M',$scope.sm);
-       //console.log('Init State',$scope.sm.current);
   };
 
   var matchText = function(reference,spoken){
     reference = reference.replace(/,|;|'|!|\./g,'').toUpperCase();
     spoken = spoken.toUpperCase();
-    console.log('Reference',reference,spoken);
-    var matchScore = spoken.score(reference);
-    console.log('Score=',matchScore);
-    return true; //matchScore >=0.5;
+    //console.log('Reference=',reference);
+    //console.log('Spoken=',spoken);
+    var matchScore = spoken.score(reference,0.1);
+    //console.log('Score=',matchScore);
+    return matchScore >=0.15;
   };
 
 
@@ -117,15 +114,22 @@ app.controller('AppCtrl',function($scope,mysteryData, stateMachineService, inten
          for (var i = event.resultIndex; i < event.results.length; ++i) {
            if (event.results[i].isFinal) {
              text += event.results[i][0].transcript;
-             $scope.$apply();
+
            }
          }
 
      };
-     var _start = function(){
-           text = '';
-           recognition.start();
-        };
+     recognition.onend = function(){
+       //console.log('In end',text);
+       var referenceText = $scope.sm.current.text;
+       var isMatch = matchText(referenceText,text);
+        if(isMatch){goNext();
+         } else {
+                  console.error('Too poor match');
+                }
+       $scope.$apply();
+     };
+
   $scope.isSpeaking = false;
 
     var goNext = function(){
@@ -151,28 +155,17 @@ app.controller('AppCtrl',function($scope,mysteryData, stateMachineService, inten
   $scope.toggleSpeak = function() {
 
      if($scope.isSpeaking){
+        //console.log('Fire end event');
         recognition.stop();
 
-        var referenceText = $scope.sm.current.text;
-        var isMatch = matchText(referenceText,text);
-        if(isMatch){
-            goNext();
 
-        } else {
-              console.error('Too poor match');
-
-        }
      }
      else {
         text = '';
-        _start();
-
+        recognition.start();
      }
      $scope.isSpeaking = !$scope.isSpeaking;
 
   };
 
-  $scope.next = function(){
-    goNext();
-  };
 });
