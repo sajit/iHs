@@ -3,12 +3,18 @@
 	font-size: 18px;
 	font-style: bold;
 	background-color:  #F5F5DC;
-	
+
 }
 .button {
 	width: 150px;
 	height: 30px;
-	background-color: #6495ED;
-	color: #F0FFFF;
+
+	color: white;
 	text-align: center;
+}
+.not-speaking {
+  background-color : blue;
+}
+.speaking {
+   background-color: grey;
 }

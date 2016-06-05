@@ -1,8 +1,49 @@
+var speechHelper = function(isMobile){
+   var recognition;
+   var text = '';
+   if(isMobile)
+       recognition = new SpeechRecognition(); // For Android /
+   else
+       recognition = new webkitSpeechRecognition();
+
+   recognition.lang = 'en-US';
+   recognition.continuous = true;
+
+
+   recognition.onresult = function(event) {
+
+       for (var i = event.resultIndex; i < event.results.length; ++i) {
+         if (event.results[i].isFinal) {
+           text += event.results[i][0].transcript;
+         }
+       }
+
+   };
+   recognition.onend = function(){
+     console.log('On end fired',text);
+   };
+
+   var _start = function(){
+      text = '';
+      recognition.start();
+   };
+   var _stop = function() {
+         recognition.stop();
+         return text;
+   };
+   console.log('Initialized Recognition',recognition);
+   return {
+    start : _start,
+    stop: _stop
+   } ;
+
+};
 // Ionic Starter App
 
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
+
 var app = angular.module('starter', ['ionic']);
 
 app.run(function($ionicPlatform) {
@@ -41,20 +82,15 @@ app.factory('stateMachineService',['$window',function($window){
        return {
          init : function(mystery){
             var code;
-            if(mystery === 'Glorious'){
-               code = 'GM';
-            } else if(mystery === 'Joyful'){
-              code = 'JM';
-            } else if(mystery === 'Sorrowful'){
-              code = 'SM'
-            }
-            else {
-              code = 'LM';
+            if(mystery === 'Glorious'){ code = 'GM';
+            } else if(mystery === 'Joyful'){ code = 'JM';
+            } else if(mystery === 'Sorrowful'){ code = 'SM'
+            } else { code = 'LM';
             }
             stateMachine = new state(code,rosaryPrayers);
             return stateMachine;
          }
-         
+
        };
 }]);
 app.factory('intentionData',function(){
@@ -71,29 +107,30 @@ app.factory('intentionData',function(){
 
 });
 app.controller('AppCtrl',function($scope,mysteryData, stateMachineService, intentionData){
- console.log('no hope');
- var day = new Date();
+  console.log('no hope');
+  var day = new Date();
   $scope.selectedMystery  = mysteryData.getMysteryByDay(day.getDay());
   $scope.allMysteries = mysteryData.mysteries;
   var isAndroid = ionic.Platform.isAndroid();
-    
   $scope.stateMachineService = stateMachineService;
 
-  //console.log('All',$scope.allMysteries,$scope.defaultMystery);
   $scope.rosaryInProgress = false;
-  $scope.start = function(){
+
+
+
+  $scope.startRosary = function(){
        $scope.rosaryInProgress = true;
         $scope.sm = stateMachineService.init($scope.selectedMystery);
-       console.log('State M',$scope.sm);
-       console.log('Init State',$scope.sm.current);
-       
+       //console.log('State M',$scope.sm);
+       //console.log('Init State',$scope.sm.current);
   };
+
   var goNext = function(){
      var prevTitle = $scope.sm.current.title;
      $scope.sm.current = $scope.sm.next();
-      if(angular.equals({},$scope.sm.current)){
+     if(angular.equals({},$scope.sm.current)){
                 $scope.rosaryInProgress = false;
-              }
+     }
      if($scope.sm.current.title === prevTitle &&  !$scope.sm.current.switch){
         $scope.hmCount  +=1;
      }
@@ -104,49 +141,38 @@ app.controller('AppCtrl',function($scope,mysteryData, stateMachineService, inten
      if($scope.sm.current.mysterCount){
       $scope.intention = intentionData.intentions[$scope.sm.current.mysterCount];
      }
-     $scope.$apply();
-             
-  };
+     //$scope.$apply();
 
-  $scope.record = function() {
-    var recognition;
-     if(isAndroid)
-        recognition = new SpeechRecognition(); // For Android /
-      else
-        recognition = new webkitSpeechRecognition();
-    recognition.lang = 'en-US';
-    recognition.continuous = false;
-      recognition.onresult = function(event) {
-        if (event.results.length > 0) {
-            $scope.recognizedText = event.results[0][0].transcript;
-	    
-            console.log('Recognized text',$scope.recognizedText);
-            var score = $scope.sm.current.text.score($scope.recognizedText,0.5);
-            
-            
-            console.log('Match score',score);
-            if(true){
-               goNext();
-            }
-            else {
-              console.error('Print error message');
-              $scope.error = 'Please try again';
-            }
-        }
-    };
-    recognition.onstop = function(event){
-          console.log('Onstop',event);
   };
-   recognition.onend = function(event){
-   console.log('OnEnd',event);
-};
-   
-      recognition.start();
-   
+  var recognition;
+  $scope.isSpeaking = false;
+  $scope.toggleSpeak = function() {
+      if(!recognition){
+        recognition = new speechHelper(isAndroid);
+      }
+     if($scope.isSpeaking){
+        $scope.recognizedText = recognition.stop();
+        //$scope.$apply();
+     }
+     else {
 
-   
-  
-    
+        $scope.recognizedText = '';
+        recognition.start();
+
+        //$scope.$apply();
+     }
+     $scope.isSpeaking = !$scope.isSpeaking;
+
+
+
+     var referenceText = $scope.sm.current.text;
+     var matchScore = referenceText.score($scope.recognizedText,0.5);
+     console.log('JPHM',$scope.recognizedText,matchScore);
+     if(matchScore>=0.5){
+       goNext();
+     }
+
+
   };
 
   $scope.next = function(){
