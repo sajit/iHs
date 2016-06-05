@@ -7,35 +7,11 @@ var speechHelper = function(isMobile){
        recognition = new webkitSpeechRecognition();
 
    recognition.lang = 'en-US';
-   recognition.continuous = true;
+   recognition.continuous = false;
 
 
-   recognition.onresult = function(event) {
-
-       for (var i = event.resultIndex; i < event.results.length; ++i) {
-         if (event.results[i].isFinal) {
-           text += event.results[i][0].transcript;
-         }
-       }
-
-   };
-   recognition.onend = function(){
-     console.log('On end fired',text);
-   };
-
-   var _start = function(){
-      text = '';
-      recognition.start();
-   };
-   var _stop = function() {
-         recognition.stop();
-         return text;
-   };
    console.log('Initialized Recognition',recognition);
-   return {
-    start : _start,
-    stop: _stop
-   } ;
+   return recognition;
 
 };
 // Ionic Starter App
@@ -125,53 +101,74 @@ app.controller('AppCtrl',function($scope,mysteryData, stateMachineService, inten
        //console.log('Init State',$scope.sm.current);
   };
 
-  var goNext = function(){
-     var prevTitle = $scope.sm.current.title;
-     $scope.sm.current = $scope.sm.next();
-     if(angular.equals({},$scope.sm.current)){
-                $scope.rosaryInProgress = false;
-     }
-     if($scope.sm.current.title === prevTitle &&  !$scope.sm.current.switch){
-        $scope.hmCount  +=1;
-     }
-     else{
-       $scope.hmCount = 0;
-     }
-     $scope.error = '';
-     if($scope.sm.current.mysterCount){
-      $scope.intention = intentionData.intentions[$scope.sm.current.mysterCount];
-     }
-     //$scope.$apply();
-
+  var matchText = function(reference,spoken){
+    reference = reference.replace(/,|;|'|!|\./g,'').toUpperCase();
+    spoken = spoken.toUpperCase();
+    console.log('Reference',reference,spoken);
+    var matchScore = spoken.score(reference);
+    console.log('Score=',matchScore);
+    return true; //matchScore >=0.5;
   };
-  var recognition;
+
+
+  var text,recognition = new speechHelper(isAndroid);
+   recognition.onresult = function(event) {
+
+         for (var i = event.resultIndex; i < event.results.length; ++i) {
+           if (event.results[i].isFinal) {
+             text += event.results[i][0].transcript;
+             $scope.$apply();
+           }
+         }
+
+     };
+     var _start = function(){
+           text = '';
+           recognition.start();
+        };
   $scope.isSpeaking = false;
+
+    var goNext = function(){
+       var prevTitle = $scope.sm.current.title;
+       $scope.sm.current = $scope.sm.next();
+       if(angular.equals({},$scope.sm.current)){
+                  $scope.rosaryInProgress = false;
+                  return;
+       }
+       if($scope.sm.current.title === prevTitle &&  !$scope.sm.current.switch){
+          $scope.hmCount  +=1;
+       }
+       else{
+         $scope.hmCount = 0;
+       }
+
+       if($scope.sm.current.mysterCount){
+        $scope.intention = intentionData.intentions[$scope.sm.current.mysterCount];
+       }
+       $scope.recognizedText = text;
+
+    };
   $scope.toggleSpeak = function() {
-      if(!recognition){
-        recognition = new speechHelper(isAndroid);
-      }
+
      if($scope.isSpeaking){
-        $scope.recognizedText = recognition.stop();
-        //$scope.$apply();
+        recognition.stop();
+
+        var referenceText = $scope.sm.current.text;
+        var isMatch = matchText(referenceText,text);
+        if(isMatch){
+            goNext();
+
+        } else {
+              console.error('Too poor match');
+
+        }
      }
      else {
+        text = '';
+        _start();
 
-        $scope.recognizedText = '';
-        recognition.start();
-
-        //$scope.$apply();
      }
      $scope.isSpeaking = !$scope.isSpeaking;
-
-
-
-     var referenceText = $scope.sm.current.text;
-     var matchScore = referenceText.score($scope.recognizedText,0.5);
-     console.log('JPHM',$scope.recognizedText,matchScore);
-     if(matchScore>=0.5){
-       goNext();
-     }
-
 
   };
 
