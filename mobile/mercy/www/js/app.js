@@ -89,19 +89,12 @@ app.controller('AppCtrl',function($scope,mysteryData, stateMachineService, inten
 
   $scope.rosaryInProgress = false;
 
-
-
   $scope.startRosary = function(){
        $scope.rosaryInProgress = true;
-        $scope.sm = stateMachineService.init($scope.selectedMystery);
+       $scope.sm = stateMachineService.init($scope.selectedMystery);
   };
 
-  var recognition = new speechHelper(isAndroid);
-
-   recognition.onend = function(){
-     goNext();
-     $scope.$apply();
-   };
+  var recognition;
 
   $scope.isSpeaking = false;
 
@@ -126,16 +119,23 @@ app.controller('AppCtrl',function($scope,mysteryData, stateMachineService, inten
 
     };
   $scope.toggleSpeak = function() {
+     if(!recognition){
+        recognition = new speechHelper(isAndroid);
+
+
+     }
 
      if($scope.isSpeaking){
-        //console.log('Fire end event');
         recognition.stop();
-
+        goNext();
      }
      else {
         recognition.start();
+
      }
      $scope.isSpeaking = !$scope.isSpeaking;
+
+
 
   };
 
