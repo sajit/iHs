@@ -1,23 +1,11 @@
-var speechHelper = function(isMobile){
-   var recognition;
-   if(isMobile)
-       recognition = new SpeechRecognition(); // For Android /
-   else
-       recognition = new webkitSpeechRecognition();
 
-   recognition.lang = 'en-US';
-   recognition.continuous = true;
-
-   return recognition;
-
-};
 // Ionic Starter App
 
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 
-var app = angular.module('starter', ['ionic']);
+var app = angular.module('starter', ['ionic', 'ngCordova']);
 
 app.run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -79,7 +67,7 @@ app.factory('intentionData',function(){
   };
 
 });
-app.controller('AppCtrl',function($scope,mysteryData, stateMachineService, intentionData){
+app.controller('AppCtrl',function($scope,mysteryData, stateMachineService, intentionData, $cordovaMedia){
 
   var day = new Date();
   $scope.selectedMystery  = mysteryData.getMysteryByDay(day.getDay());
@@ -96,12 +84,6 @@ app.controller('AppCtrl',function($scope,mysteryData, stateMachineService, inten
         $scope.sm = stateMachineService.init($scope.selectedMystery);
   };
 
-  var recognition = new speechHelper(isAndroid);
-
-   recognition.onend = function(){
-     goNext();
-     $scope.$apply();
-   };
 
   $scope.isSpeaking = false;
 
@@ -124,18 +106,35 @@ app.controller('AppCtrl',function($scope,mysteryData, stateMachineService, inten
        }
 
 
+        $scope.isSpeaking = false;
+
+
+
     };
+
+  var media;
+  var _playSound = function(src) {
+       if(!media){
+
+       media = $cordovaMedia.newMedia(src);
+
+       }
+        media.play();
+
+    }
   $scope.toggleSpeak = function() {
+
+    _playSound('www/audio/beep.wav');
 
      if($scope.isSpeaking){
         //console.log('Fire end event');
-        recognition.stop();
+        goNext();
 
      }
      else {
-        recognition.start();
+        $scope.isSpeaking = true;
      }
-     $scope.isSpeaking = !$scope.isSpeaking;
+
 
   };
 
