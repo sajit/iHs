@@ -1,22 +1,8 @@
-var speechHelper = function(isMobile){
-   var recognition;
-   if(isMobile)
-       recognition = new SpeechRecognition(); // For Android /
-   else
-       recognition = new webkitSpeechRecognition();
-
-   recognition.lang = 'en-US';
-   recognition.continuous = true;
-
-   return recognition;
-
-};
 // Ionic Starter App
 
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-
 var app = angular.module('starter', ['ionic']);
 
 app.run(function($ionicPlatform) {
@@ -55,15 +41,20 @@ app.factory('stateMachineService',['$window',function($window){
        return {
          init : function(mystery){
             var code;
-            if(mystery === 'Glorious'){ code = 'GM';
-            } else if(mystery === 'Joyful'){ code = 'JM';
-            } else if(mystery === 'Sorrowful'){ code = 'SM'
-            } else { code = 'LM';
+            if(mystery === 'Glorious'){
+               code = 'GM';
+            } else if(mystery === 'Joyful'){
+              code = 'JM';
+            } else if(mystery === 'Sorrowful'){
+              code = 'SM'
+            }
+            else {
+              code = 'LM';
             }
             stateMachine = new state(code,rosaryPrayers);
             return stateMachine;
          }
-
+         
        };
 }]);
 app.factory('intentionData',function(){
@@ -80,63 +71,85 @@ app.factory('intentionData',function(){
 
 });
 app.controller('AppCtrl',function($scope,mysteryData, stateMachineService, intentionData){
-
-  var day = new Date();
+ console.log('no hope');
+ var day = new Date();
   $scope.selectedMystery  = mysteryData.getMysteryByDay(day.getDay());
   $scope.allMysteries = mysteryData.mysteries;
   var isAndroid = ionic.Platform.isAndroid();
+    
   $scope.stateMachineService = stateMachineService;
 
+  //console.log('All',$scope.allMysteries,$scope.defaultMystery);
   $scope.rosaryInProgress = false;
-
-
-
-  $scope.startRosary = function(){
+  $scope.start = function(){
        $scope.rosaryInProgress = true;
         $scope.sm = stateMachineService.init($scope.selectedMystery);
+       console.log('State M',$scope.sm);
+       console.log('Init State',$scope.sm.current);
+       
   };
-
-  var recognition = new speechHelper(isAndroid);
-
-   recognition.onend = function(){
-     goNext();
+  var goNext = function(){
+     var prevTitle = $scope.sm.current.title;
+     $scope.sm.current = $scope.sm.next();
+      if(angular.equals({},$scope.sm.current)){
+                $scope.rosaryInProgress = false;
+              }
+     if($scope.sm.current.title === prevTitle &&  !$scope.sm.current.switch){
+        $scope.hmCount  +=1;
+     }
+     else{
+       $scope.hmCount = 0;
+     }
+     $scope.error = '';
+     if($scope.sm.current.mysterCount){
+      $scope.intention = intentionData.intentions[$scope.sm.current.mysterCount];
+     }
      $scope.$apply();
-   };
-
-  $scope.isSpeaking = false;
-
-    var goNext = function(){
-       var prevTitle = $scope.sm.current.title;
-       $scope.sm.current = $scope.sm.next();
-       if(angular.equals({},$scope.sm.current)){
-                  $scope.rosaryInProgress = false;
-                  return;
-       }
-       if($scope.sm.current.title === prevTitle &&  !$scope.sm.current.switch){
-          $scope.hmCount  +=1;
-       }
-       else{
-         $scope.hmCount = 0;
-       }
-
-       if($scope.sm.current.mysterCount){
-        $scope.intention = intentionData.intentions[$scope.sm.current.mysterCount];
-       }
-
-
-    };
-  $scope.toggleSpeak = function() {
-
-     if($scope.isSpeaking){
-        //console.log('Fire end event');
-        recognition.stop();
-
-     }
-     else {
-        recognition.start();
-     }
-     $scope.isSpeaking = !$scope.isSpeaking;
-
+             
   };
 
+  $scope.record = function() {
+    var recognition;
+     if(isAndroid)
+        recognition = new SpeechRecognition(); // For Android /
+      else
+        recognition = new webkitSpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.continuous = false;
+      recognition.onresult = function(event) {
+        if (event.results.length > 0) {
+            $scope.recognizedText = event.results[0][0].transcript;
+	    
+            console.log('Recognized text',$scope.recognizedText);
+            var score = $scope.sm.current.text.score($scope.recognizedText,0.5);
+            
+            
+            console.log('Match score',score);
+            if(true){
+               goNext();
+            }
+            else {
+              console.error('Print error message');
+              $scope.error = 'Please try again';
+            }
+        }
+    };
+    recognition.onstop = function(event){
+          console.log('Onstop,event);
+  };
+   recognition.onend = function(event){
+   console.log('OnEnd',event);
+};
+   
+      recognition.start();
+   
+
+   
+  
+    
+  };
+
+  $scope.next = function(){
+    goNext();
+  };
 });

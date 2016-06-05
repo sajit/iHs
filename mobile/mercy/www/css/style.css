@@ -3,12 +3,25 @@
 	font-size: 18px;
 	font-style: bold;
 	background-color:  #F5F5DC;
-	
+
 }
 .button {
 	width: 150px;
 	height: 30px;
-	background-color: #6495ED;
-	color: #F0FFFF;
+
+	color: #000000;
 	text-align: center;
+}
+.not-speaking {
+  background-color : #00FFFF;
+}
+.speaking {
+   background-color: #C0C0C0;
+}
+.speaking:focus{
+  cursor: wait;
+
+}
+.speaking:hover{
+  cursor: wait;
 }
