@@ -114,6 +114,9 @@ app.controller('AppCtrl',function($scope,mysteryData, stateMachineService, inten
        if($scope.sm.current.showIntention){
         $scope.intention = intentionData.intentions[$scope.sm.current.mysterCount];
        }
+       else {
+         $scope.intention = undefined;
+       }
 
 
     };
