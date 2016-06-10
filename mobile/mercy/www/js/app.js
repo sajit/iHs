@@ -81,20 +81,16 @@ app.factory('intentionData',function(){
 });
 app.controller('AppCtrl',function($scope,mysteryData, stateMachineService, intentionData){
 
-  var day = new Date();
-  $scope.selectedMystery  = mysteryData.getMysteryByDay(day.getDay());
-  $scope.allMysteries = mysteryData.mysteries;
   var isAndroid = ionic.Platform.isAndroid();
   $scope.stateMachineService = stateMachineService;
 
   $scope.rosaryInProgress = false;
 
-  $scope.handle = function(mystery){
-    $scope.selectedMystery = mystery;
-  };
-  $scope.startRosary = function(){
+
+  $scope.startRosary = function(mystery){
        $scope.rosaryInProgress = true;
-       $scope.sm = stateMachineService.init($scope.selectedMystery);
+       console.log('Selected Mystery',mystery);
+       $scope.sm = stateMachineService.init(mystery);
   };
 
   var recognition;
@@ -115,7 +111,7 @@ app.controller('AppCtrl',function($scope,mysteryData, stateMachineService, inten
          $scope.hmCount = 0;
        }
 
-       if($scope.sm.current.mysterCount){
+       if($scope.sm.current.showIntention){
         $scope.intention = intentionData.intentions[$scope.sm.current.mysterCount];
        }
 

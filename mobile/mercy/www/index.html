@@ -45,11 +45,24 @@
         <div ng-if="!rosaryInProgress">
 
             <div>Select Mystery</div>
-            <div ng-repeat="mystery in allMysteries">
-              {{mystery}}: <input type="radio" ng-model="selectedMystery" ng-value="mystery" ng-change="handle(mystery)"/>
+            <div>
+              Glorious: <input type="radio" ng-model="mystery" value="Glorious" />
             </div>
+             <br/>
+          <div>
+            Joyful: <input type="radio" ng-model="mystery" value="Joyful" />
+          </div>
+          <br/>
+          <div>
+            Sorrowful: <input type="radio" ng-model="mystery" value="Sorrowful" />
+          </div>
+          <br/>
+          <div>
+            Luminous: <input type="radio" ng-model="mystery" value="Luminous" />
+          </div>
+          <br/>
 
-            <button class="button not-speaking" ng-click="startRosary()">Start</button>
+            <button ng-disabled="!mystery" class="button not-speaking" ng-click="startRosary(mystery)">Start</button>
 
 
         </div>
