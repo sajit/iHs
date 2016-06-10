@@ -43,11 +43,15 @@
       <ion-content>
       <div ng-controller="AppCtrl">
         <div ng-if="!rosaryInProgress">
-          <div>Select Mystery</div>
-         <div ng-repeat="mystery in allMysteries">
-            {{mystery}}: <input type="radio" ng-model="selectedMystery" ng-value="mystery"/>
-         </div>
-         <button class="button not-speaking" ng-click="startRosary()">Start</button>
+
+            <div>Select Mystery</div>
+            <div ng-repeat="mystery in allMysteries">
+              {{mystery}}: <input type="radio" ng-model="selectedMystery" ng-value="mystery" ng-change="handle(mystery)"/>
+            </div>
+
+            <button class="button not-speaking" ng-click="startRosary()">Start</button>
+
+
         </div>
 
          <div ng-if="rosaryInProgress">

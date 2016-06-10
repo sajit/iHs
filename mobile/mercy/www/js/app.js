@@ -89,6 +89,9 @@ app.controller('AppCtrl',function($scope,mysteryData, stateMachineService, inten
 
   $scope.rosaryInProgress = false;
 
+  $scope.handle = function(mystery){
+    $scope.selectedMystery = mystery;
+  };
   $scope.startRosary = function(){
        $scope.rosaryInProgress = true;
        $scope.sm = stateMachineService.init($scope.selectedMystery);
